@@ -121,23 +121,4 @@ class TeamCityBuildListenerTest {
         // Assert
         assertNull(this.otelHelper.getSpan(String.valueOf(build.getBuildId())));
     }
-
-    @Test
-    void buildFinishedOrInterruptedAsksFactoryToRelease() {
-        // Arrange
-        SRunningBuild build = mock(SRunningBuild.class, RETURNS_DEEP_STUBS);
-        // Stubbing this method to return the build if there is no parent, this is the behaviour of TeamCity
-        BuildPromotion[] buildPromotions = new BuildPromotion[]{build.getBuildPromotion()};
-        when(build.getBuildPromotion().findTops()).thenReturn(buildPromotions);
-        when(factory.getOTELHelper(Arrays.stream(buildPromotions).findFirst().get())).thenReturn(otelHelper);
-        when(teamCityNodes.getCurrentNode().isMainNode()).thenReturn(true);
-        this.buildListener.buildStarted(build);
-        assertNotNull(this.otelHelper.getSpan(String.valueOf(build.getBuildId())));
-
-        // Act
-        this.buildListener.buildFinished(build);
-
-        // Assert
-        verify(factory, times(1)).release(build.getBuildId());
-    }
 }

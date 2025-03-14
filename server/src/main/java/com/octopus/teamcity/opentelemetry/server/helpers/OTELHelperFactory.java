@@ -1,10 +1,10 @@
 package com.octopus.teamcity.opentelemetry.server.helpers;
 
 import jetbrains.buildServer.serverSide.BuildPromotion;
-import jetbrains.buildServer.serverSide.SRunningBuild;
+import jetbrains.buildServer.serverSide.SProject;
 
 public interface OTELHelperFactory {
     OTELHelper getOTELHelper(BuildPromotion build);
 
-    void release(Long buildId);
+    void settingsUpdated(SProject project);
 }
