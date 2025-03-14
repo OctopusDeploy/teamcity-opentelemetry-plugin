@@ -1,10 +1,9 @@
 package com.octopus.teamcity.opentelemetry.server.helpers;
 
 import com.octopus.teamcity.opentelemetry.server.endpoints.OTELEndpointFactory;
-import io.opentelemetry.sdk.metrics.SdkMeterProvider;
-import io.opentelemetry.sdk.trace.SpanProcessor;
 import jetbrains.buildServer.serverSide.BuildPromotion;
 import jetbrains.buildServer.serverSide.ProjectManager;
+import jetbrains.buildServer.serverSide.SProject;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,30 +13,30 @@ import static com.octopus.teamcity.opentelemetry.common.PluginConstants.*;
 
 public class HelperPerBuildOTELHelperFactory implements OTELHelperFactory {
     static Logger LOG = Logger.getLogger(HelperPerBuildOTELHelperFactory.class.getName());
-    private final ConcurrentHashMap<Long, OTELHelper> otelHelpers;
+    private final ConcurrentHashMap<String, OTELHelper> otelHelpers;
+    @NotNull
     private final ProjectManager projectManager;
     @NotNull
     private final OTELEndpointFactory otelEndpointFactory;
 
     public HelperPerBuildOTELHelperFactory(
-        ProjectManager projectManager,
+        @NotNull ProjectManager projectManager,
         @NotNull OTELEndpointFactory otelEndpointFactory
     ) {
         this.projectManager = projectManager;
         this.otelEndpointFactory = otelEndpointFactory;
-        LOG.debug("Creating HelperPerBuildOTELHelperFactory.");
 
         this.otelHelpers = new ConcurrentHashMap<>();
     }
 
     public OTELHelper getOTELHelper(BuildPromotion buildPromotion) {
-        var buildId = buildPromotion.getId();
+        var projectId = buildPromotion.getProjectId();
 
-        return otelHelpers.computeIfAbsent(buildId, key -> {
-            LOG.debug(String.format("Creating OTELHelper for build %d.", buildId));
-            var projectId = buildPromotion.getProjectExternalId();
-            var project = projectManager.findProjectByExternalId(projectId);
+        return otelHelpers.computeIfAbsent(projectId, key -> {
+            LOG.debug(String.format("Creating OTELHelper for project '%s'.", projectId));
+            var project = projectManager.findProjectById(projectId);
 
+            assert project != null;
             var features = project.getAvailableFeaturesOfType(PLUGIN_NAME);
             if (!features.isEmpty()) {
                 var feature = features.stream().findFirst().get();
@@ -51,26 +50,26 @@ public class HelperPerBuildOTELHelperFactory implements OTELHelperFactory {
                     long startTime = System.nanoTime();
                     var spanProcessor = spanProcessorMeterProviderPair.getLeft();
                     var meterProvider = spanProcessorMeterProviderPair.getRight();
-                    var otelHelper = new OTELHelperImpl(spanProcessor, meterProvider, String.valueOf(buildId));
+                    var otelHelper = new OTELHelperImpl(spanProcessor, meterProvider, String.valueOf(projectId));
                     long endTime = System.nanoTime();
 
                     long duration = (endTime - startTime);
-                    LOG.debug(String.format("Created OTELHelper for build %d in %d milliseconds.", buildId, duration / 1000000));
+                    LOG.debug(String.format("Created OTELHelper for project '%s' in %d milliseconds.", projectId, duration / 1000000));
 
                     return otelHelper;
                 }
             }
-            LOG.debug(String.format("Using NullOTELHelper for build %d.", buildId));
+            LOG.debug(String.format("Using NullOTELHelper for project '%s'.", projectId));
             return new NullOTELHelperImpl();
         });
     }
 
     @Override
-    public void release(Long buildId) {
-        var helper = otelHelpers.get(buildId);
+    public void settingsUpdated(SProject project) {
+        var helper = otelHelpers.get(project.getProjectId());
         if (helper != null) {
-            helper.release(String.valueOf(buildId));
-            otelHelpers.remove(buildId);
+            helper.release(project.getProjectId());
+            otelHelpers.remove(project.getProjectId());
         }
     }
 }

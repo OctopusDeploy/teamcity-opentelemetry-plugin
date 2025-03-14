@@ -1,6 +1,7 @@
 package com.octopus.teamcity.opentelemetry.server;
 
 import com.octopus.teamcity.opentelemetry.server.endpoints.OTELEndpointFactory;
+import com.octopus.teamcity.opentelemetry.server.helpers.OTELHelperFactory;
 import jetbrains.buildServer.controllers.ActionErrors;
 import jetbrains.buildServer.controllers.ActionMessages;
 import jetbrains.buildServer.controllers.BaseFormXmlController;
@@ -22,13 +23,17 @@ public class ProjectConfigurationSettingsController extends BaseFormXmlControlle
     private final ProjectManager projectManager;
     static Logger LOG = Logger.getLogger(ProjectConfigurationSettingsController.class.getName());
     private final OTELEndpointFactory otelEndpointFactory;
+    @NotNull
+    private final OTELHelperFactory otelHelperFactory;
 
     public ProjectConfigurationSettingsController(
             @NotNull ProjectManager projectManager,
             @NotNull WebControllerManager controllerManager,
-            @NotNull OTELEndpointFactory otelEndpointFactory) {
+            @NotNull OTELEndpointFactory otelEndpointFactory,
+            @NotNull OTELHelperFactory otelHelperFactory) {
         this.projectManager = projectManager;
         this.otelEndpointFactory = otelEndpointFactory;
+        this.otelHelperFactory = otelHelperFactory;
 
         controllerManager.registerController("/admin/" + PLUGIN_NAME + "/settings.html", this);
     }
@@ -57,8 +62,8 @@ public class ProjectConfigurationSettingsController extends BaseFormXmlControlle
             return;
         }
 
-        //todo: tell the OTELHelperFactory that project settings have changed.
-        //      this would allow us to change the factory to cache based on project, rather than on build
+        //tell the OTELHelperFactory that project settings have changed, so it can update its cache
+        otelHelperFactory.settingsUpdated(project);
 
         var feature = project.getOwnFeaturesOfType(PLUGIN_NAME);
         if (settingsRequest.mode.isPresent() && settingsRequest.mode.get().equals(SaveMode.RESET)) {
