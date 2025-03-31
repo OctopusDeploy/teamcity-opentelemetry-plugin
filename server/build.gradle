@@ -17,7 +17,7 @@ dependencies {
     implementation platform("io.opentelemetry:opentelemetry-bom:1.48.0")
     implementation('io.opentelemetry:opentelemetry-api:1.48.0')
     implementation('io.opentelemetry:opentelemetry-sdk:1.48.0')
-    implementation('io.opentelemetry:opentelemetry-exporter-otlp:1.47.0')
+    implementation('io.opentelemetry:opentelemetry-exporter-otlp:1.48.0')
     implementation 'io.opentelemetry:opentelemetry-sdk-metrics:1.48.0'
     implementation('io.opentelemetry.semconv:opentelemetry-semconv')
     implementation("io.opentelemetry.semconv:opentelemetry-semconv-incubating:1.30.0-alpha")
