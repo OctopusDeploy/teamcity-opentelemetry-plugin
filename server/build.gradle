@@ -20,7 +20,7 @@ dependencies {
     implementation('io.opentelemetry:opentelemetry-exporter-otlp:1.48.0')
     implementation 'io.opentelemetry:opentelemetry-sdk-metrics:1.48.0'
     implementation('io.opentelemetry.semconv:opentelemetry-semconv')
-    implementation("io.opentelemetry.semconv:opentelemetry-semconv-incubating:1.31.0-alpha")
+    implementation("io.opentelemetry.semconv:opentelemetry-semconv-incubating:1.32.0-alpha")
     implementation('io.opentelemetry:opentelemetry-exporter-zipkin')
     implementation 'io.grpc:grpc-netty-shaded:1.71.0'
 
