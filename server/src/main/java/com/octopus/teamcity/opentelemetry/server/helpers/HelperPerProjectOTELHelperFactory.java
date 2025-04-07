@@ -4,22 +4,27 @@ import com.octopus.teamcity.opentelemetry.server.endpoints.OTELEndpointFactory;
 import jetbrains.buildServer.serverSide.BuildPromotion;
 import jetbrains.buildServer.serverSide.ProjectManager;
 import jetbrains.buildServer.serverSide.SProject;
+import jetbrains.buildServer.serverSide.TeamCityProperties;
 import org.apache.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.octopus.teamcity.opentelemetry.common.PluginConstants.*;
 
-public class HelperPerBuildOTELHelperFactory implements OTELHelperFactory {
-    static Logger LOG = Logger.getLogger(HelperPerBuildOTELHelperFactory.class.getName());
+public class HelperPerProjectOTELHelperFactory implements OTELHelperFactory {
+    static Logger LOG = Logger.getLogger(HelperPerProjectOTELHelperFactory.class.getName());
     private final ConcurrentHashMap<String, OTELHelper> otelHelpers;
     @NotNull
     private final ProjectManager projectManager;
     @NotNull
     private final OTELEndpointFactory otelEndpointFactory;
+    private static final String DEFAULT_HELPER_EVICTION_PERIOD_MS = "300000"; // 5 minutes
+    private static final String DEFAULT_HELPER_INACTIVE_THRESHOLD_MS = "3600000"; // 1 hour
+    private final java.util.Timer cleanupTimer;
 
-    public HelperPerBuildOTELHelperFactory(
+    public HelperPerProjectOTELHelperFactory(
         @NotNull ProjectManager projectManager,
         @NotNull OTELEndpointFactory otelEndpointFactory
     ) {
@@ -27,6 +32,16 @@ public class HelperPerBuildOTELHelperFactory implements OTELHelperFactory {
         this.otelEndpointFactory = otelEndpointFactory;
 
         this.otelHelpers = new ConcurrentHashMap<>();
+
+        // Set up periodic cleanup task
+        var timerDelay = Long.parseLong(TeamCityProperties.getProperty("teamcity.otel.helper.cleanup.timer.delay.ms", DEFAULT_HELPER_EVICTION_PERIOD_MS));
+        this.cleanupTimer = new java.util.Timer("OTELHelperCleanupTimer", true);
+        this.cleanupTimer.scheduleAtFixedRate(new java.util.TimerTask() {
+            @Override
+            public void run() {
+                evictInactiveHelpers();
+            }
+        }, timerDelay, timerDelay);
     }
 
     public OTELHelper getOTELHelper(BuildPromotion buildPromotion) {
@@ -71,5 +86,23 @@ public class HelperPerBuildOTELHelperFactory implements OTELHelperFactory {
             helper.release(project.getProjectId());
             otelHelpers.remove(project.getProjectId());
         }
+    }
+
+    private void evictInactiveHelpers() {
+        long currentTime = System.currentTimeMillis();
+        LOG.debug("Running periodic cleanup of inactive OTEL helpers");
+        var cacheDuration = Long.parseLong(TeamCityProperties.getProperty("teamcity.otel.helper.cache.duration.ms", DEFAULT_HELPER_INACTIVE_THRESHOLD_MS));
+
+        otelHelpers.forEach((projectId, helper) -> {
+            Date lastUsed = helper.getLastUsed();
+            long timeSinceLastUse = currentTime - lastUsed.getTime();
+
+            if (timeSinceLastUse > cacheDuration) {
+                LOG.debug(String.format("Evicting inactive OTELHelper for project '%s' (inactive for %d minutes)",
+                        projectId, timeSinceLastUse / 60000));
+                helper.release(projectId);
+                otelHelpers.remove(projectId);
+            }
+        });
     }
 }

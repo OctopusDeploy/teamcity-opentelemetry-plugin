@@ -17,6 +17,7 @@ import io.opentelemetry.semconv.ServiceAttributes;
 import org.apache.log4j.Logger;
 
 import javax.annotation.Nullable;
+import java.util.Date;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +30,7 @@ public class OTELHelperImpl implements OTELHelper {
     private final String helperName;
     @Nullable
     private final SdkMeterProvider meterProvider;
+    private Date lastAccessDate;
 
     public OTELHelperImpl(
             SpanProcessor spanProcessor,
@@ -49,20 +51,33 @@ public class OTELHelperImpl implements OTELHelper {
         this.tracer = this.openTelemetry.getTracer(PluginConstants.TRACER_INSTRUMENTATION_NAME);
         this.spanMap = new ConcurrentHashMap<>();
         this.meterProvider = meterProvider;
+        lastAccessDate = new Date();
     }
 
     @Override
     public boolean isReady() {
+        updateLastAccessDate();
         return this.openTelemetry != null && this.tracer != null && this.spanMap != null;
     }
 
     @Override
+    public Date getLastUsed() {
+        return this.lastAccessDate;
+    }
+
+    void updateLastAccessDate() {
+        this.lastAccessDate = new Date();
+    }
+
+    @Override
     public Span getOrCreateParentSpan(String buildId) {
+        updateLastAccessDate();
         return this.spanMap.computeIfAbsent(buildId, key -> this.tracer.spanBuilder(buildId).startSpan());
     }
 
     @Override
     public Span createSpan(String spanName, Span parentSpan, String parentSpanName) {
+        updateLastAccessDate();
         LOG.info("Creating child span " + spanName + " under parent " + parentSpanName);
         return this.spanMap.computeIfAbsent(spanName, key -> this.tracer
                 .spanBuilder(spanName)
@@ -72,6 +87,7 @@ public class OTELHelperImpl implements OTELHelper {
 
     @Override
     public Span createTransientSpan(String spanName, Span parentSpan, long startTime) {
+        updateLastAccessDate();
         return this.tracer.spanBuilder(spanName)
                 .setParent(Context.current().with(parentSpan))
                 .setStartTimestamp(startTime, TimeUnit.MILLISECONDS)
@@ -80,17 +96,20 @@ public class OTELHelperImpl implements OTELHelper {
 
     @Override
     public void removeSpan(String spanName) {
+        updateLastAccessDate();
         this.spanMap.remove(spanName);
     }
 
     @Override
     @Nullable
     public Span getSpan(String spanName) {
+        updateLastAccessDate();
         return this.spanMap.get(spanName);
     }
 
     @Override
     public void addAttributeToSpan(Span span, String attributeName, Object attributeValue) {
+        updateLastAccessDate();
         span.setAttribute(attributeName, attributeValue.toString());
     }
 
