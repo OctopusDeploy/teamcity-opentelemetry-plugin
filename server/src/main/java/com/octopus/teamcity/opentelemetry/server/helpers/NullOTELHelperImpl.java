@@ -3,11 +3,17 @@ package com.octopus.teamcity.opentelemetry.server.helpers;
 import io.opentelemetry.api.trace.Span;
 
 import javax.annotation.Nullable;
+import java.util.Date;
 
 public class NullOTELHelperImpl implements OTELHelper {
     @Override
     public boolean isReady() {
         return false;
+    }
+
+    @Override
+    public Date getLastUsed() {
+        return new Date();
     }
 
     @Override
