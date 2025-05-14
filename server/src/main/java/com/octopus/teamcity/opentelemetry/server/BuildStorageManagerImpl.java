@@ -56,9 +56,10 @@ public class BuildStorageManagerImpl implements BuildStorageManager {
     public String getSpanId(SBuild build) {
         var spanId = getData(build);
         if (spanId != null && spanId.contains(OTEL_TRACE_SPAN_ID_SEPARATOR)) {
-            spanId = spanId.split(OTEL_TRACE_SPAN_ID_SEPARATOR)[1];
+            return spanId.split(OTEL_TRACE_SPAN_ID_SEPARATOR)[1];
+        } else {
+            return null;
         }
-        return spanId;
     }
 
     @Override
