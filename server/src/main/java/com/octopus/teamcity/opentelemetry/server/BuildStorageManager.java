@@ -9,5 +9,8 @@ public interface BuildStorageManager {
     @Nullable
     String getTraceId(SBuild build);
 
-    void saveTraceId(SRunningBuild build, String traceId);
+    @Nullable
+    String getSpanId(SBuild build);
+
+    void saveTraceId(SRunningBuild build, String traceId, String spanId);
 }
