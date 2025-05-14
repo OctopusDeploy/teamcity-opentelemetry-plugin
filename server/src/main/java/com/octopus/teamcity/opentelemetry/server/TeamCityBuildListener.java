@@ -70,7 +70,7 @@ public class TeamCityBuildListener extends BuildServerAdapter {
                         var rootBuildInChainId = rootBuildInChain.getId();
                         LOG.debug(String.format("Root build of build id %d is %d", build.getBuildId(), rootBuildInChainId));
 
-                        var rootSpan = otelHelper.getOrCreateParentSpan(String.valueOf(rootBuildInChainId), getBuildName(rootBuildInChain));
+                        var rootSpan = otelHelper.getOrCreateParentSpan(String.valueOf(rootBuildInChainId));
                         var span = ensureSpansExistLinkingToRoot(otelHelper, build.getBuildPromotion(), rootBuildInChain);
                         buildStorageManager.saveTraceId(build, rootSpan.getSpanContext().getTraceId(), span.getSpanContext().getSpanId());
 
