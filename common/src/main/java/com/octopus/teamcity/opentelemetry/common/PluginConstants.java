@@ -1,5 +1,7 @@
 package com.octopus.teamcity.opentelemetry.common;
 
+import java.time.Duration;
+
 public class PluginConstants {
     private PluginConstants() {}
     public static final String TRACER_INSTRUMENTATION_NAME = "octopus.teamcity.opentelemetry";
@@ -13,6 +15,11 @@ public class PluginConstants {
     public static final String PROPERTY_KEY_HONEYCOMB_TEAM = "octopus.teamcity.opentelemetry.plugin.honeycomb.team";
     public static final String PROPERTY_KEY_HONEYCOMB_DATASET = "octopus.teamcity.opentelemetry.plugin.honeycomb.dataset";
     public static final String PROPERTY_KEY_HONEYCOMB_APIKEY = "octopus.teamcity.opentelemetry.plugin.honeycomb.apikey";
+    public static final String PROPERTY_KEY_HONEYCOMB_METRICS_ENABLED = "octopus.teamcity.opentelemetry.plugin.honeycomb.metrics.enabled";
+
+    public static final int BATCH_SPAN_PROCESSOR_MAX_QUEUE_SIZE = 32768; // Default is 2048. Increasing it to limit dropped spans.
+    public static final Duration BATCH_SPAN_PROCESSOR_MAX_SCHEDULE_DELAY = Duration.ofSeconds(5); // Default is 5s. This is another lever we can tweak.
+    public static final int BATCH_SPAN_PROCESSOR_MAX_EXPORT_BATCH_SIZE = 8192; // Default is 512. Increasing it to limit dropped spans.
 
     public static final String ATTRIBUTE_SERVICE_NAME = "service_name";
     public static final String ATTRIBUTE_NAME = "name";

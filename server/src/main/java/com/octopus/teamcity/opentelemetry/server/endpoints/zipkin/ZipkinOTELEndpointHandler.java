@@ -3,22 +3,25 @@ package com.octopus.teamcity.opentelemetry.server.endpoints.zipkin;
 import com.octopus.teamcity.opentelemetry.server.SetProjectConfigurationSettingsRequest;
 import com.octopus.teamcity.opentelemetry.server.endpoints.IOTELEndpointHandler;
 import io.opentelemetry.exporter.zipkin.ZipkinSpanExporter;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.trace.SpanProcessor;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
+import jetbrains.buildServer.serverSide.BuildPromotion;
 import jetbrains.buildServer.serverSide.SBuild;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
-import static com.octopus.teamcity.opentelemetry.common.PluginConstants.PROPERTY_KEY_ENDPOINT;
+import static com.octopus.teamcity.opentelemetry.common.PluginConstants.*;
 
-public class ZipKinOTELEndpointHandler implements IOTELEndpointHandler {
+public class ZipkinOTELEndpointHandler implements IOTELEndpointHandler {
     private final PluginDescriptor pluginDescriptor;
 
-    public ZipKinOTELEndpointHandler(
+    public ZipkinOTELEndpointHandler(
             PluginDescriptor pluginDescriptor) {
         this.pluginDescriptor = pluginDescriptor;
     }
@@ -34,8 +37,8 @@ public class ZipKinOTELEndpointHandler implements IOTELEndpointHandler {
     }
 
     @Override
-    public SpanProcessor buildSpanProcessor(String endpoint, Map<String, String> params) {
-        return buildZipkinSpanProcessor(endpoint);
+    public Pair<SpanProcessor, SdkMeterProvider> buildSpanProcessorAndMeterProvider(BuildPromotion buildPromotion, String endpoint, Map<String, String> params) {
+        return Pair.of(buildZipkinSpanProcessor(endpoint), null);
     }
 
     private SpanProcessor buildZipkinSpanProcessor(String exporterEndpoint) {
@@ -44,7 +47,11 @@ public class ZipKinOTELEndpointHandler implements IOTELEndpointHandler {
                 .setEndpoint(endpoint)
                 .build();
 
-        return BatchSpanProcessor.builder(zipkinExporter).build();
+        return BatchSpanProcessor.builder(zipkinExporter)
+                .setMaxQueueSize(BATCH_SPAN_PROCESSOR_MAX_QUEUE_SIZE)
+                .setScheduleDelay(BATCH_SPAN_PROCESSOR_MAX_SCHEDULE_DELAY)
+                .setMaxExportBatchSize(BATCH_SPAN_PROCESSOR_MAX_EXPORT_BATCH_SIZE)
+                .build();
     }
 
     @Override

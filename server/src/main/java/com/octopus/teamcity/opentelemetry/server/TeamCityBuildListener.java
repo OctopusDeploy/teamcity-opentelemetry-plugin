@@ -218,11 +218,8 @@ public class TeamCityBuildListener extends BuildServerAdapter {
                         span.setStatus(StatusCode.ERROR, PluginConstants.EXCEPTION_ERROR_MESSAGE_DURING_BUILD_FINISH + ": " + e.getMessage());
                     } finally {
                         span.end();
-                        var buildId = getBuildId(build);
-                        otelHelper.removeSpan(buildId);
-                        if (buildId.equals(String.valueOf(getRootBuildInChain(build).getId())))
-                            otelHelperFactory.release(build.getBuildId());
-                    }
+                        otelHelper.removeSpan(getBuildId(build));
+                   }
                 } else {
                     LOG.warn("Build end triggered but span not found for build '" + getBuildName(build) + "' id " + build.getBuildId());
                 }

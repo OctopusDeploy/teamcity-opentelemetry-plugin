@@ -4,12 +4,15 @@ import com.octopus.teamcity.opentelemetry.server.*;
 import com.octopus.teamcity.opentelemetry.server.endpoints.IOTELEndpointHandler;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporter;
 import io.opentelemetry.exporter.otlp.trace.OtlpGrpcSpanExporterBuilder;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.trace.SpanProcessor;
 import io.opentelemetry.sdk.trace.export.BatchSpanProcessor;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
+import jetbrains.buildServer.serverSide.BuildPromotion;
 import jetbrains.buildServer.serverSide.SBuild;
 import jetbrains.buildServer.serverSide.crypt.EncryptUtil;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Logger;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -34,7 +37,7 @@ public class CustomOTELEndpointHandler implements IOTELEndpointHandler {
     }
 
     @Override
-    public SpanProcessor buildSpanProcessor(String endpoint, Map<String, String> params) {
+    public Pair<SpanProcessor, SdkMeterProvider> buildSpanProcessorAndMeterProvider(BuildPromotion buildPromotion, String endpoint, Map<String, String> params) {
         Map<String, String> headers = new HashMap<>();
         params.forEach((k, v) -> {
             if (k.startsWith(PROPERTY_KEY_HEADERS)) {
@@ -44,7 +47,7 @@ public class CustomOTELEndpointHandler implements IOTELEndpointHandler {
                 headers.put(name, value);
             }
         });
-        return buildGrpcSpanProcessor(headers, endpoint);
+        return Pair.of(buildGrpcSpanProcessor(headers, endpoint), null);
     }
 
     @Override
@@ -78,9 +81,10 @@ public class CustomOTELEndpointHandler implements IOTELEndpointHandler {
         spanExporterBuilder.setEndpoint(exporterEndpoint);
         SpanExporter spanExporter = spanExporterBuilder.build();
 
-        LOG.debug("OTEL_PLUGIN: Opentelemetry export headers: " + LogMasker.mask(headers.toString()));
-        LOG.debug("OTEL_PLUGIN: Opentelemetry export endpoint: " + exporterEndpoint);
-
-        return BatchSpanProcessor.builder(spanExporter).build();
+        return BatchSpanProcessor.builder(spanExporter)
+                .setMaxQueueSize(BATCH_SPAN_PROCESSOR_MAX_QUEUE_SIZE)
+                .setScheduleDelay(BATCH_SPAN_PROCESSOR_MAX_SCHEDULE_DELAY)
+                .setMaxExportBatchSize(BATCH_SPAN_PROCESSOR_MAX_EXPORT_BATCH_SIZE)
+                .build();
     }
 }
