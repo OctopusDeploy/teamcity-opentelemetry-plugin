@@ -68,8 +68,10 @@ public class HoneycombOTELEndpointHandler implements IOTELEndpointHandler {
     @Override
     public Pair<SpanProcessor, SdkMeterProvider> buildSpanProcessorAndMeterProvider(BuildPromotion buildPromotion, String endpoint, Map<String, String> params) {
         Map<String, String> headers = new HashMap<>();
-        var mode = HoneycombMode.get(params.get(PROPERTY_KEY_HONEYCOMB_MODE));
-        if (mode.isPresent() && !HoneycombMode.ENVIRONMENTS.equals(mode.get())) {
+        var mode = HoneycombMode
+                .get(params.get(PROPERTY_KEY_HONEYCOMB_MODE))
+                .orElse(HoneycombMode.CLASSIC);
+        if (HoneycombMode.CLASSIC.equals(mode)) {
             headers.put("x-honeycomb-dataset", params.get(PROPERTY_KEY_HONEYCOMB_DATASET));
         }
         headers.put("x-honeycomb-team", EncryptUtil.unscramble(params.get(PROPERTY_KEY_HONEYCOMB_APIKEY)));
@@ -85,7 +87,7 @@ public class HoneycombOTELEndpointHandler implements IOTELEndpointHandler {
             var otlpGrpcMetricExporterBuilder = OtlpGrpcMetricExporter.builder()
                     .setEndpoint(endpoint)
                     .addHeader("x-honeycomb-team", EncryptUtil.unscramble(params.get(PROPERTY_KEY_HONEYCOMB_APIKEY)))
-                    //if you’re sending metrics to Honeycomb, then you do need to send x-honeycomb-dataset.
+                    //if you’re sending metrics to Honeycomb, then you do need to send x-honeycomb-dataset, even if you're using environments
                     .addHeader("x-honeycomb-dataset", params.get(PROPERTY_KEY_HONEYCOMB_DATASET));
             return otlpGrpcMetricExporterBuilder.build();
         }
