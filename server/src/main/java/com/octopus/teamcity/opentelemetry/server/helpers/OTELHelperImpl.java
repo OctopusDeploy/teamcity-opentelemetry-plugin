@@ -45,7 +45,6 @@ public class OTELHelperImpl implements OTELHelper {
         this.sdkTracerProvider = SdkTracerProvider.builder()
                 .setResource(Resource.getDefault().merge(serviceNameResource))
                 .addSpanProcessor(spanProcessor)
-                .addSpanProcessor(SimpleSpanProcessor.create(LoggingSpanExporter.create()))
                 .build();
         this.openTelemetry = OpenTelemetrySdk.builder()
                 .setTracerProvider(sdkTracerProvider)
