@@ -9,7 +9,7 @@
 
         <vendor>
             <name>Octopus Deploy Pty. Ltd.</name>
-            <url>https://octopusdeploy.com</url>
+            <url>https://octopus.com</url>
         </vendor>
     </info>
     <deployment use-separate-classloader="true" allow-runtime-reload="true" teamcity.development.shadowCopyClasses="true" node-responsibilities-aware="true" />
