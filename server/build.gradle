@@ -14,26 +14,27 @@ tasks.named('jar') {
 
 dependencies {
     implementation project(':common')
-    implementation platform("io.opentelemetry:opentelemetry-bom:1.44.1")
-    implementation('io.opentelemetry:opentelemetry-api:1.44.1')
-    implementation('io.opentelemetry:opentelemetry-sdk:1.44.1')
-    implementation('io.opentelemetry:opentelemetry-exporter-otlp:1.44.1')
     implementation('io.opentelemetry:opentelemetry-exporter-logging:1.44.1')
-    implementation 'io.opentelemetry:opentelemetry-sdk-metrics:1.44.1'
+    implementation platform("io.opentelemetry:opentelemetry-bom:1.49.0")
+    implementation('io.opentelemetry:opentelemetry-api:1.50.0')
+    implementation('io.opentelemetry:opentelemetry-sdk:1.50.0')
+    implementation('io.opentelemetry:opentelemetry-exporter-otlp:1.50.0')
+    implementation 'io.opentelemetry:opentelemetry-sdk-metrics:1.50.0'
     implementation('io.opentelemetry.semconv:opentelemetry-semconv')
-    implementation("io.opentelemetry.semconv:opentelemetry-semconv-incubating:1.28.0-alpha")
+    implementation("io.opentelemetry.semconv:opentelemetry-semconv-incubating:1.32.0-alpha")
     implementation('io.opentelemetry:opentelemetry-exporter-zipkin')
-    implementation 'io.grpc:grpc-netty-shaded:1.68.1'
+    implementation 'io.grpc:grpc-netty-shaded:1.72.0'
 
-    testImplementation 'org.jetbrains.teamcity:tests-support:2024.07'
-    testImplementation 'org.jetbrains.teamcity:server-api:2024.07'
-    testImplementation 'org.apache.commons:commons-text:1.12.0'
-    testImplementation 'org.mockito:mockito-junit-jupiter:5.14.2'
-    testImplementation 'org.mockito:mockito-core:5.14.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.3'
+    testImplementation 'org.jetbrains.teamcity:tests-support:2025.03'
+    testImplementation 'org.jetbrains.teamcity:server-api:2025.03'
+    testImplementation 'org.apache.commons:commons-text:1.13.1'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.17.0'
+    testImplementation 'org.mockito:mockito-core:5.17.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
+    testImplementation 'org.junit.platform:junit-platform-launcher:1.12.2'
 
     //provided by the environment, so we dont need to package it.
-    provided 'org.jetbrains.teamcity:server-api:2024.07'
+    provided 'org.jetbrains.teamcity:server-api:2025.03'
 }
 
 test {
