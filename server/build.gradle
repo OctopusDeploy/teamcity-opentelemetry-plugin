@@ -28,7 +28,7 @@ dependencies {
     testImplementation 'org.jetbrains.teamcity:server-api:2025.03'
     testImplementation 'org.apache.commons:commons-text:1.13.1'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.18.0'
-    testImplementation 'org.mockito:mockito-core:5.17.0'
+    testImplementation 'org.mockito:mockito-core:5.18.0'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.12.2'
     testImplementation 'org.junit.platform:junit-platform-launcher:1.12.2'
 
