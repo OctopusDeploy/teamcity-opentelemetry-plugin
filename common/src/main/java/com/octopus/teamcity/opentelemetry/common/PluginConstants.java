@@ -38,6 +38,8 @@ public class PluginConstants {
     public static final String ATTRIBUTE_PROJECT_ID = TRACER_INSTRUMENTATION_NAME + ".project_id";
     public static final String ATTRIBUTE_AGENT_NAME = TRACER_INSTRUMENTATION_NAME + ".agent_name";
     public static final String ATTRIBUTE_AGENT_TYPE = TRACER_INSTRUMENTATION_NAME + ".agent_type";
+    public static final String ATTRIBUTE_AGENT_POOL_NAME = TRACER_INSTRUMENTATION_NAME + ".agent_pool_name";
+    public static final String ATTRIBUTE_AGENT_POOL_ID = TRACER_INSTRUMENTATION_NAME + ".agent_pool_id";
     public static final String ATTRIBUTE_BUILD_NUMBER = TRACER_INSTRUMENTATION_NAME + ".build_number";
     public static final String ATTRIBUTE_COMMIT = TRACER_INSTRUMENTATION_NAME + ".commit";
     public static final String ATTRIBUTE_BRANCH = TRACER_INSTRUMENTATION_NAME + ".branch";
