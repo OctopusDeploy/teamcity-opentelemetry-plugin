@@ -14,11 +14,11 @@ tasks.named('jar') {
 
 dependencies {
     implementation project(':common')
-    implementation platform("io.opentelemetry:opentelemetry-bom:1.58.0")
-    implementation('io.opentelemetry:opentelemetry-api:1.58.0')
-    implementation('io.opentelemetry:opentelemetry-sdk:1.58.0')
-    implementation('io.opentelemetry:opentelemetry-exporter-otlp:1.58.0')
-    implementation 'io.opentelemetry:opentelemetry-sdk-metrics:1.58.0'
+    implementation platform("io.opentelemetry:opentelemetry-bom:1.59.0")
+    implementation('io.opentelemetry:opentelemetry-api:1.59.0')
+    implementation('io.opentelemetry:opentelemetry-sdk:1.59.0')
+    implementation('io.opentelemetry:opentelemetry-exporter-otlp:1.59.0')
+    implementation 'io.opentelemetry:opentelemetry-sdk-metrics:1.59.0'
     implementation('io.opentelemetry.semconv:opentelemetry-semconv')
     implementation("io.opentelemetry.semconv:opentelemetry-semconv-incubating:1.39.0-alpha")
     implementation('io.opentelemetry:opentelemetry-exporter-zipkin')
