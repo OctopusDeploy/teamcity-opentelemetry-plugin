@@ -1,3 +1,11 @@
+<jsp:useBean id="otelService" type="java.lang.String" scope="request"/>
+<jsp:useBean id="otelHoneycombMetricsEnabled" type="java.lang.String" scope="request"/>
+<jsp:useBean id="otelHoneycombTeam" type="java.lang.String" scope="request"/>
+<jsp:useBean id="otelHoneycombDataset" type="java.lang.String" scope="request"/>
+<jsp:useBean id="otelHoneycombEnvironment" type="java.lang.String" scope="request"/>
+<jsp:useBean id="otelHoneycombMode" type="java.lang.String" scope="request"/>
+<jsp:useBean id="otelHoneycombApiKey" type="java.lang.String" scope="request"/>
+
 <tr <c:if test='${otelService != "honeycomb.io"}'>style="display: none"</c:if>>
     <th><label for="honeycombApiKey">API Key:&nbsp;<span class="mandatoryAsterix" title="Mandatory field">*</span></label></th>
     <td>
@@ -13,15 +21,36 @@
     </td>
 </tr>
 <tr <c:if test='${otelService != "honeycomb.io"}'>style="display: none"</c:if>>
+    <th><label for="honeycombMode">Mode:&nbsp;<span class="mandatoryAsterix" title="Mandatory field">*</span></label></th>
+    <td>
+        <select name="honeycombMode" id="honeycombMode" onchange="BS.ProjectConfigurationSettings.honeycombModeChanged(this)">
+            <option value="classic" <c:if test='${otelHoneycombMode != "environments"}'>selected="selected"</c:if>>Classic</option>
+            <option value="environments" <c:if test='${otelHoneycombMode == "environments"}'>selected="selected"</c:if>>Environments</option>
+        </select>
+    </td>
+</tr>
+<tr <c:if test='${otelService != "honeycomb.io" && otelHoneycombMode != "Environments"}'>style="display: none"</c:if>>
     <th><label for="honeycombDataset">Dataset:&nbsp;<span class="mandatoryAsterix" title="Mandatory field">*</span></label></th>
     <td>
         <input type="text" name="honeycombDataset" id="honeycombDataset" value="${otelHoneycombDataset}" class="textField longField">
         <span class="error" id="error_honeycombDataset"></span>
     </td>
 </tr>
+<tr <c:if test='${otelService != "honeycomb.io" && otelHoneycombMode == "Environments"}'>style="display: none"</c:if>>
+    <th><label for="honeycombEnvironment">Environment:&nbsp;<span class="mandatoryAsterix" title="Mandatory field">*</span></label></th>
+    <td>
+        <input type="text" name="honeycombEnvironment" id="honeycombEnvironment" value="${otelHoneycombEnvironment}" class="textField longField">
+        <span class="error" id="error_honeycombEnvironment"></span>
+    </td>
+</tr>
 <tr <c:if test='${otelService != "honeycomb.io"}'>style="display: none"</c:if>>
     <th><label for="honeycombMetricsEnabled">Send Metrics?</label></th>
     <td>
-        <forms:checkbox name="honeycombMetricsEnabled" checked="${otelHoneycombMetricsEnabled}" >&nbsp;</forms:checkbox>
+        <forms:checkbox name="honeycombMetricsEnabled" checked="${otelHoneycombMetricsEnabled}" onclick="BS.ProjectConfigurationSettings.honeycombMetricsEnabledChanged(this)">&nbsp;</forms:checkbox>
     </td>
 </tr>
+
+<script>
+    BS.ProjectConfigurationSettings.honeycombModeChanged($j('#honeycombMode'));
+    BS.ProjectConfigurationSettings.honeycombMetricsEnabledChanged($j('#honeycombMetricsEnabled'));
+</script>
