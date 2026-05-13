@@ -9,7 +9,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.Map;
 
 public interface IOTELEndpointHandler {
@@ -20,13 +19,4 @@ public interface IOTELEndpointHandler {
     SetProjectConfigurationSettingsRequest getSetProjectConfigurationSettingsRequest(HttpServletRequest request);
 
     void mapParamsToModel(Map<String, String> params, Map<String, Object> model);
-
-    //todo: should this use the OTELSERVICE enum?
-    String getServiceName();
-
-    List<String> getJsPaths();
-
-    List<String> getCssPaths();
-
-    String getJspPath();
 }

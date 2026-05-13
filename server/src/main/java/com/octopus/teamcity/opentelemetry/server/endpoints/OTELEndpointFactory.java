@@ -7,9 +7,6 @@ import jetbrains.buildServer.serverSide.TeamCityNodes;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.List;
-
 public class OTELEndpointFactory {
 
     @NotNull
@@ -32,18 +29,18 @@ public class OTELEndpointFactory {
 
     public IOTELEndpointHandler getOTELEndpointHandler(OTELService otelService)
     {
-        return getOTELEndpointHandlers().stream()
-                .filter(handler -> handler.getServiceName().equals(otelService.getValue()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid service name " + otelService));
-    }
-
-    public Collection<IOTELEndpointHandler> getOTELEndpointHandlers() {
-        return List.of(
-            new HoneycombOTELEndpointHandler(pluginDescriptor, teamcityNodesService),
-            new ZipkinOTELEndpointHandler(pluginDescriptor),
-            new CustomOTELEndpointHandler(pluginDescriptor)
-        );
+        //todo: can we look this up automatically somehow
+        switch (otelService)
+        {
+            case HONEYCOMB:
+                return new HoneycombOTELEndpointHandler(pluginDescriptor, teamcityNodesService);
+            case ZIPKIN:
+                return new ZipkinOTELEndpointHandler(pluginDescriptor);
+            case CUSTOM:
+                return new CustomOTELEndpointHandler(pluginDescriptor);
+            default:
+                throw new IllegalArgumentException("Invalid service name " + otelService);
+        }
     }
 }
 

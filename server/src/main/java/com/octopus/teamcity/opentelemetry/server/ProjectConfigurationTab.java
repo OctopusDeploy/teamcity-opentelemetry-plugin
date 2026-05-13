@@ -1,21 +1,18 @@
 package com.octopus.teamcity.opentelemetry.server;
 
-import com.octopus.teamcity.opentelemetry.server.endpoints.IOTELEndpointHandler;
 import com.octopus.teamcity.opentelemetry.server.endpoints.OTELEndpointFactory;
 import jetbrains.buildServer.controllers.admin.projects.EditProjectTab;
-import jetbrains.buildServer.controllers.fakes.FakeHttpServletResponse;
 import jetbrains.buildServer.serverSide.ProjectManager;
 import jetbrains.buildServer.serverSide.SProject;
 import jetbrains.buildServer.serverSide.crypt.RSACipher;
 import jetbrains.buildServer.web.openapi.PagePlaces;
 import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static com.octopus.teamcity.opentelemetry.common.PluginConstants.*;
 
@@ -79,55 +76,22 @@ public class ProjectConfigurationTab extends EditProjectTab {
             model.put("otelService", params.get(PROPERTY_KEY_SERVICE));
 
             service.mapParamsToModel(params, model);
-
-            var handlers = otelEndpointFactory.getOTELEndpointHandlers();
-            model.put("allServices", handlers.stream().map(IOTELEndpointHandler::getServiceName).toArray());
-            model.put("allServiceJspFiles", handlers.stream().map(handler -> pluginDescriptor.getPluginResourcesPath(handler.getJspPath())).toArray());
-            handlers.forEach(handler -> {
-                var path = pluginDescriptor.getPluginResourcesPath(handler.getJspPath());
-
-                var rd = request.getRequestDispatcher(path);
-                var response = new FakeHttpServletResponse();
-                try {
-                    rd.include(request, response);
-                    model.put("include", response.getOutputStream().toString());
-                } catch (ServletException | IOException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-
         }
     }
 
     @NotNull
     @Override
     public List<String> getJsPaths() {
-        var list = new ArrayList<>(List.of(pluginDescriptor.getPluginResourcesPath("projectConfigurationSettings.js")));
-
-        otelEndpointFactory.getOTELEndpointHandlers()
-                .stream()
-                .map(IOTELEndpointHandler::getJsPaths)
-                .forEach(paths -> {
-                    paths.forEach(path -> list.add(pluginDescriptor.getPluginResourcesPath(path)));
-                });
-        return list;
+        return Arrays.asList(
+            pluginDescriptor.getPluginResourcesPath("projectConfigurationSettings.js")
+        );
     }
 
     @NotNull
     @Override
     public List<String> getCssPaths() {
-//        return Arrays.asList(
-//            pluginDescriptor.getPluginResourcesPath("projectConfigurationSettings.css")
-//        );
-
-        var list = new ArrayList<>(List.of(pluginDescriptor.getPluginResourcesPath("projectConfigurationSettings.css")));
-
-        otelEndpointFactory.getOTELEndpointHandlers()
-                .stream()
-                .map(IOTELEndpointHandler::getCssPaths)
-                .forEach(paths -> {
-                    paths.forEach(path -> list.add(pluginDescriptor.getPluginResourcesPath(path)));
-                });
-        return list;
+        return Arrays.asList(
+            pluginDescriptor.getPluginResourcesPath("projectConfigurationSettings.css")
+        );
     }
 }

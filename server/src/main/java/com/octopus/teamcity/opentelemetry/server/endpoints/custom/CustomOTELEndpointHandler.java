@@ -19,11 +19,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static com.octopus.teamcity.opentelemetry.common.PluginConstants.*;
-import static com.octopus.teamcity.opentelemetry.server.endpoints.OTELService.CUSTOM;
 
 public class CustomOTELEndpointHandler implements IOTELEndpointHandler {
     private final PluginDescriptor pluginDescriptor;
@@ -35,7 +33,7 @@ public class CustomOTELEndpointHandler implements IOTELEndpointHandler {
     }
 
     public ModelAndView getBuildOverviewModelAndView(SBuild build, Map<String, String> params, String traceId) {
-        return new ModelAndView(pluginDescriptor.getPluginResourcesPath("custom/buildOverviewEmpty.jsp"));
+        return new ModelAndView(pluginDescriptor.getPluginResourcesPath("buildOverviewEmpty.jsp"));
     }
 
     @Override
@@ -74,26 +72,6 @@ public class CustomOTELEndpointHandler implements IOTELEndpointHandler {
         });
 
         model.put("otelHeaders", headers);
-    }
-
-    @Override
-    public String getServiceName() {
-        return CUSTOM.getValue();
-    }
-
-    @Override
-    public List<String> getJsPaths() {
-        return List.of("zipkin/projectConfigurationSettingsCustom.js");
-    }
-
-    @Override
-    public List<String> getCssPaths() {
-        return List.of();
-    }
-
-    @Override
-    public String getJspPath() {
-        return "custom/projectConfigurationSettingsCustom.jspf";
     }
 
     private SpanProcessor buildGrpcSpanProcessor(Map<String, String> headers, String exporterEndpoint) {

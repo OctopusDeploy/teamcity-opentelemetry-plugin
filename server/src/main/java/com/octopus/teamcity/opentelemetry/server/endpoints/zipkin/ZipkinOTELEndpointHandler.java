@@ -14,12 +14,9 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 import java.util.Map;
 
 import static com.octopus.teamcity.opentelemetry.common.PluginConstants.*;
-import static com.octopus.teamcity.opentelemetry.server.endpoints.OTELService.HONEYCOMB;
-import static com.octopus.teamcity.opentelemetry.server.endpoints.OTELService.ZIPKIN;
 
 public class ZipkinOTELEndpointHandler implements IOTELEndpointHandler {
     private final PluginDescriptor pluginDescriptor;
@@ -31,7 +28,7 @@ public class ZipkinOTELEndpointHandler implements IOTELEndpointHandler {
 
     @NotNull
     public ModelAndView getBuildOverviewModelAndView(SBuild build, Map<String, String> params, String traceId) {
-        final ModelAndView mv = new ModelAndView(pluginDescriptor.getPluginResourcesPath("zipkin/buildOverviewZipkinExtension.jsp"));
+        final ModelAndView mv = new ModelAndView(pluginDescriptor.getPluginResourcesPath("buildOverviewZipkinExtension.jsp"));
 
         var model = mv.getModel();
         model.put("traceId", traceId);
@@ -65,25 +62,5 @@ public class ZipkinOTELEndpointHandler implements IOTELEndpointHandler {
     @Override
     public void mapParamsToModel(Map<String, String> params, Map<String, Object> model) {
         model.put("otelEndpoint", params.get(PROPERTY_KEY_ENDPOINT));
-    }
-
-    @Override
-    public String getServiceName() {
-        return ZIPKIN.getValue();
-    }
-
-    @Override
-    public List<String> getJsPaths() {
-        return List.of("zipkin/projectConfigurationSettingsZipkin.js");
-    }
-
-    @Override
-    public List<String> getCssPaths() {
-        return List.of();
-    }
-
-    @Override
-    public String getJspPath() {
-        return "zipkin/projectConfigurationSettingsZipkin.jspf";
     }
 }
