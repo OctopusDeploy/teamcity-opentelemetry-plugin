@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.octopus.teamcity.opentelemetry.common.PluginConstants.*;
+import static com.octopus.teamcity.opentelemetry.server.endpoints.OTELService.HONEYCOMB;
 
 public class HoneycombOTELEndpointHandler implements IOTELEndpointHandler {
 
@@ -47,7 +48,7 @@ public class HoneycombOTELEndpointHandler implements IOTELEndpointHandler {
 
     @NotNull
     public ModelAndView getBuildOverviewModelAndView(SBuild build, Map<String, String> params, String traceId) {
-        final ModelAndView mv = new ModelAndView(pluginDescriptor.getPluginResourcesPath("buildOverviewHoneycombExtension.jsp"));
+        final ModelAndView mv = new ModelAndView(pluginDescriptor.getPluginResourcesPath("honeycomb/buildOverviewHoneycombExtension.jsp"));
 
         var model = mv.getModel();
         model.put("team", params.get(PROPERTY_KEY_HONEYCOMB_TEAM));
@@ -139,5 +140,25 @@ public class HoneycombOTELEndpointHandler implements IOTELEndpointHandler {
         else {
             model.put("otelHoneycombApiKey", RSACipher.encryptDataForWeb(EncryptUtil.unscramble(params.get(PROPERTY_KEY_HONEYCOMB_APIKEY))));
         }
+    }
+
+    @Override
+    public String getServiceName() {
+        return HONEYCOMB.getValue();
+    }
+
+    @Override
+    public List<String> getJsPaths() {
+        return List.of("honeycomb/projectConfigurationSettingsHoneycomb.js");
+    }
+
+    @Override
+    public List<String> getCssPaths() {
+        return List.of();
+    }
+
+    @Override
+    public String getJspPath() {
+        return "honeycomb/projectConfigurationSettingsHoneycomb.jspf";
     }
 }
