@@ -28,9 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static com.octopus.teamcity.opentelemetry.common.PluginConstants.*;
 
@@ -52,6 +50,8 @@ public class HoneycombOTELEndpointHandler implements IOTELEndpointHandler {
         var model = mv.getModel();
         model.put("team", params.get(PROPERTY_KEY_HONEYCOMB_TEAM));
         model.put("dataset", params.get(PROPERTY_KEY_HONEYCOMB_DATASET));
+        model.put("mode", params.get(PROPERTY_KEY_HONEYCOMB_MODE));
+        model.put("environment", params.getOrDefault(PROPERTY_KEY_HONEYCOMB_ENVIRONMENT, "").toLowerCase());
         model.put("traceId", traceId);
 
         //we pad the time to ensure that we get all the spans, just in case we get a slight diff in the
@@ -68,8 +68,12 @@ public class HoneycombOTELEndpointHandler implements IOTELEndpointHandler {
     @Override
     public Pair<SpanProcessor, SdkMeterProvider> buildSpanProcessorAndMeterProvider(BuildPromotion buildPromotion, String endpoint, Map<String, String> params) {
         Map<String, String> headers = new HashMap<>();
-        //todo: add a setting to say "use classic" or "use environments"
-        headers.put("x-honeycomb-dataset", params.get(PROPERTY_KEY_HONEYCOMB_DATASET));
+        var mode = HoneycombMode
+                .get(params.get(PROPERTY_KEY_HONEYCOMB_MODE))
+                .orElse(HoneycombMode.CLASSIC);
+        if (HoneycombMode.CLASSIC.equals(mode)) {
+            headers.put("x-honeycomb-dataset", params.get(PROPERTY_KEY_HONEYCOMB_DATASET));
+        }
         headers.put("x-honeycomb-team", EncryptUtil.unscramble(params.get(PROPERTY_KEY_HONEYCOMB_APIKEY)));
 
         var metricsExporter = buildMetricsExporter(endpoint, params);
@@ -80,11 +84,12 @@ public class HoneycombOTELEndpointHandler implements IOTELEndpointHandler {
     @Nullable
     private MetricExporter buildMetricsExporter(String endpoint, Map<String, String> params) {
         if (params.getOrDefault(PROPERTY_KEY_HONEYCOMB_METRICS_ENABLED, "false").equals("true")) {
-            return OtlpGrpcMetricExporter.builder()
+            var otlpGrpcMetricExporterBuilder = OtlpGrpcMetricExporter.builder()
                     .setEndpoint(endpoint)
                     .addHeader("x-honeycomb-team", EncryptUtil.unscramble(params.get(PROPERTY_KEY_HONEYCOMB_APIKEY)))
-                    .addHeader("x-honeycomb-dataset", params.get(PROPERTY_KEY_HONEYCOMB_DATASET))
-                    .build();
+                    //if you’re sending metrics to Honeycomb, then you do need to send x-honeycomb-dataset, even if you're using environments
+                    .addHeader("x-honeycomb-dataset", params.get(PROPERTY_KEY_HONEYCOMB_DATASET));
+            return otlpGrpcMetricExporterBuilder.build();
         }
         return null;
     }
@@ -129,10 +134,12 @@ public class HoneycombOTELEndpointHandler implements IOTELEndpointHandler {
 
     @Override
     public void mapParamsToModel(Map<String, String> params, Map<String, Object> model) {
-        model.put("otelEndpoint", params.get(PROPERTY_KEY_ENDPOINT));
-        model.put("otelHoneycombTeam", params.get(PROPERTY_KEY_HONEYCOMB_TEAM));
-        model.put("otelHoneycombDataset", params.get(PROPERTY_KEY_HONEYCOMB_DATASET));
-        model.put("otelHoneycombMetricsEnabled", params.get(PROPERTY_KEY_HONEYCOMB_METRICS_ENABLED));
+        model.put("otelEndpoint", params.getOrDefault(PROPERTY_KEY_ENDPOINT, ""));
+        model.put("otelHoneycombTeam", params.getOrDefault(PROPERTY_KEY_HONEYCOMB_TEAM, ""));
+        model.put("otelHoneycombDataset", params.getOrDefault(PROPERTY_KEY_HONEYCOMB_DATASET, ""));
+        model.put("otelHoneycombMode", params.getOrDefault(PROPERTY_KEY_HONEYCOMB_MODE, HoneycombMode.getDefault().toString()));
+        model.put("otelHoneycombEnvironment", params.getOrDefault(PROPERTY_KEY_HONEYCOMB_ENVIRONMENT, ""));
+        model.put("otelHoneycombMetricsEnabled", params.getOrDefault(PROPERTY_KEY_HONEYCOMB_METRICS_ENABLED, "false"));
         if (params.get(PROPERTY_KEY_HONEYCOMB_APIKEY) == null) {
             model.put("otelHoneycombApiKey", null);
         }
