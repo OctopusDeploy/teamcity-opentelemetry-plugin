@@ -6,10 +6,6 @@
     "{{datasource}}"
   ],
   "rebaseWhen": "conflicted",
-  "dependencyDashboard": true,
-  "dependencyDashboardTitle": "Renovate Dependency Dashboard",
-  "dependencyDashboardHeader": "This dashboard manages dependencies for the default branch.",
-  "dependencyDashboardOSVVulnerabilitySummary": "all",
   "assigneesFromCodeOwners": true,
   "prConcurrentLimit": 1,
   "minimumReleaseAge": "3 days"
