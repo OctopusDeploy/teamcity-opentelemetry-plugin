@@ -1,0 +1,12 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "labels": [
+    "dependencies",
+    "autoapprove",
+    "{{datasource}}"
+  ],
+  "rebaseWhen": "conflicted",
+  "assigneesFromCodeOwners": true,
+  "prConcurrentLimit": 1,
+  "minimumReleaseAge": "3 days"
+}

@@ -1,0 +1,30 @@
+name: Renovate Update dependencies
+on:
+  schedule:
+    - cron: "20 10 * * *"
+  pull_request: # limit this to run on PRs that modify Renovate config files
+    paths:
+      - ".github/workflows/renovate.yaml"
+      - "renovate.json"
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/renovate.yaml"
+      - "renovate.json"
+jobs:
+  renovate:
+    name: Check Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Run Renovate
+        uses: renovatebot/github-action@v46.1.19
+        with:
+          token: ${{ secrets.RENOVATE_GITHUB_TOKEN }}
+          configurationFile: renovate.json
+        env:
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          LOG_LEVEL: ${{ github.ref_name == 'main' && 'INFO' || 'DEBUG' }}
+          RENOVATE_BASE_BRANCHES: main
