@@ -27,4 +27,4 @@ jobs:
         env:
           RENOVATE_REPOSITORIES: ${{ github.repository }}
           LOG_LEVEL: ${{ github.ref_name == 'main' && 'INFO' || 'DEBUG' }}
-          RENOVATE_BASE_BRANCHES: ${{ github.event.pull_request.head.ref || 'main' }}
+          RENOVATE_BASE_BRANCHES: main
