@@ -2,6 +2,11 @@ name: "Approve and auto-merge Renovate Pull Requests with automerge label"
 
 on:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
     branches:
       - main
 
