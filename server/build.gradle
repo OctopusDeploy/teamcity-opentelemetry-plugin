@@ -14,14 +14,14 @@ tasks.named('jar') {
 
 dependencies {
     implementation project(':common')
-    implementation platform("io.opentelemetry:opentelemetry-bom:1.64.0")
+    implementation platform("io.opentelemetry:opentelemetry-bom:1.65.0")
     implementation('io.opentelemetry:opentelemetry-api:1.65.0')
     implementation('io.opentelemetry:opentelemetry-sdk:1.64.0')
     implementation('io.opentelemetry:opentelemetry-exporter-otlp:1.64.0')
     implementation 'io.opentelemetry:opentelemetry-sdk-metrics:1.64.0'
     implementation('io.opentelemetry.semconv:opentelemetry-semconv')
     implementation("io.opentelemetry.semconv:opentelemetry-semconv-incubating:1.43.0-alpha")
-    implementation('io.opentelemetry:opentelemetry-exporter-zipkin')
+    implementation('io.opentelemetry:opentelemetry-exporter-zipkin:1.64.0')
     implementation 'io.grpc:grpc-netty-shaded:1.83.1'
 
     testImplementation 'org.jetbrains.teamcity:tests-support:2026.2-dsl7'
