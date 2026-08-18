@@ -48,6 +48,13 @@ public class ProjectConfigurationTab extends EditProjectTab {
         var features = project.getAvailableFeaturesOfType(PLUGIN_NAME);
         model.put("publicKey", RSACipher.getHexEncodedPublicKey());
 
+        // The form is built from these regardless of whether the project has been configured yet;
+        // the JSP declares them with jsp:useBean, which fails the whole page if either is absent.
+        var handlers = otelEndpointFactory.getOTELEndpointHandlers();
+        model.put("allServices", handlers.stream().map(IOTELEndpointHandler::getServiceName).toArray());
+        model.put("allServiceJspFiles", handlers.stream()
+                .map(handler -> pluginDescriptor.getPluginResourcesPath(handler.getJspPath())).toArray());
+
         if ((long) features.size() == 0) {
             model.put("isEnabled", false);
         }
@@ -77,10 +84,6 @@ public class ProjectConfigurationTab extends EditProjectTab {
             model.put("otelService", params.get(PROPERTY_KEY_SERVICE));
 
             service.mapParamsToModel(params, model);
-
-            var handlers = otelEndpointFactory.getOTELEndpointHandlers();
-            model.put("allServices", handlers.stream().map(IOTELEndpointHandler::getServiceName).toArray());
-            model.put("allServiceJspFiles", handlers.stream().map(handler -> pluginDescriptor.getPluginResourcesPath(handler.getJspPath())).toArray());
         }
     }
 
