@@ -1,5 +1,6 @@
 package com.octopus.teamcity.opentelemetry.server;
 
+import com.octopus.teamcity.opentelemetry.server.endpoints.IOTELEndpointHandler;
 import com.octopus.teamcity.opentelemetry.server.endpoints.OTELEndpointFactory;
 import jetbrains.buildServer.controllers.admin.projects.EditProjectTab;
 import jetbrains.buildServer.serverSide.ProjectManager;
@@ -10,7 +11,7 @@ import jetbrains.buildServer.web.openapi.PluginDescriptor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -76,22 +77,38 @@ public class ProjectConfigurationTab extends EditProjectTab {
             model.put("otelService", params.get(PROPERTY_KEY_SERVICE));
 
             service.mapParamsToModel(params, model);
+
+            var handlers = otelEndpointFactory.getOTELEndpointHandlers();
+            model.put("allServices", handlers.stream().map(IOTELEndpointHandler::getServiceName).toArray());
+            model.put("allServiceJspFiles", handlers.stream().map(handler -> pluginDescriptor.getPluginResourcesPath(handler.getJspPath())).toArray());
         }
     }
 
     @NotNull
     @Override
     public List<String> getJsPaths() {
-        return Arrays.asList(
-            pluginDescriptor.getPluginResourcesPath("projectConfigurationSettings.js")
-        );
+        var list = new ArrayList<>(List.of(pluginDescriptor.getPluginResourcesPath("projectConfigurationSettings.js")));
+
+        otelEndpointFactory.getOTELEndpointHandlers()
+                .stream()
+                .map(IOTELEndpointHandler::getJsPaths)
+                .forEach(paths -> {
+                    paths.forEach(path -> list.add(pluginDescriptor.getPluginResourcesPath(path)));
+                });
+        return list;
     }
 
     @NotNull
     @Override
     public List<String> getCssPaths() {
-        return Arrays.asList(
-            pluginDescriptor.getPluginResourcesPath("projectConfigurationSettings.css")
-        );
+        var list = new ArrayList<>(List.of(pluginDescriptor.getPluginResourcesPath("projectConfigurationSettings.css")));
+
+        otelEndpointFactory.getOTELEndpointHandlers()
+                .stream()
+                .map(IOTELEndpointHandler::getCssPaths)
+                .forEach(paths -> {
+                    paths.forEach(path -> list.add(pluginDescriptor.getPluginResourcesPath(path)));
+                });
+        return list;
     }
 }
