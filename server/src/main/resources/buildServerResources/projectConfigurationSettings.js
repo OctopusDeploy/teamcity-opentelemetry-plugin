@@ -42,6 +42,8 @@ BS.ProjectConfigurationSettings = OO.extend(BS.PluginPropertiesForm, OO.extend(B
             $j('#customHeaders').closest('tr').hide();
             $j('#honeycombTeam').closest('tr').show();
             $j('#honeycombApiKey').closest('tr').show();
+            $j('#honeycombMode').closest('tr').show();
+            $j('#honeycombMetricsEnabled').closest('tr').show();
             this.honeycombModeChanged($j('#honeycombMode'));
         } else if ($j(dropdown).val() === 'zipkin.io') {
             $j('#endpoint').closest('tr').show();
@@ -50,6 +52,7 @@ BS.ProjectConfigurationSettings = OO.extend(BS.PluginPropertiesForm, OO.extend(B
             $j('#honeycombDataset').closest('tr').hide();
             $j('#honeycombMode').closest('tr').hide();
             $j('#honeycombEnvironment').closest('tr').hide();
+            $j('#honeycombMetricsEnabled').closest('tr').hide();
             $j('#honeycombApiKey').closest('tr').hide();
         } else {
             $j('#endpoint').closest('tr').show();
@@ -58,6 +61,7 @@ BS.ProjectConfigurationSettings = OO.extend(BS.PluginPropertiesForm, OO.extend(B
             $j('#honeycombDataset').closest('tr').hide();
             $j('#honeycombMode').closest('tr').hide();
             $j('#honeycombEnvironment').closest('tr').hide();
+            $j('#honeycombMetricsEnabled').closest('tr').hide();
             $j('#honeycombApiKey').closest('tr').hide();
         }
     },
