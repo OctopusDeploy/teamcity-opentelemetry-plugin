@@ -13,6 +13,15 @@
     </td>
 </tr>
 <tr <c:if test='${otelService != "honeycomb.io"}'>style="display: none"</c:if>>
+    <th><label for="honeycombMode">Mode:&nbsp;<span class="mandatoryAsterix" title="Mandatory field">*</span></label></th>
+    <td>
+        <select name="honeycombMode" id="honeycombMode" onchange="BS.ProjectConfigurationSettingsHoneycomb.honeycombModeChanged(this)">
+            <option value="classic" <c:if test='${otelHoneycombMode != "environments"}'>selected="selected"</c:if>>Classic</option>
+            <option value="environments" <c:if test='${otelHoneycombMode == "environments"}'>selected="selected"</c:if>>Environments</option>
+        </select>
+    </td>
+</tr>
+<tr <c:if test='${otelService != "honeycomb.io" && otelHoneycombMode != "Environments"}'>style="display: none"</c:if>>
     <th><label for="honeycombDataset">Dataset:&nbsp;<span class="mandatoryAsterix" title="Mandatory field">*</span></label></th>
     <td>
         <input type="text" name="honeycombDataset" id="honeycombDataset" value="${otelHoneycombDataset}" class="textField longField">
@@ -22,6 +31,11 @@
 <tr <c:if test='${otelService != "honeycomb.io"}'>style="display: none"</c:if>>
     <th><label for="honeycombMetricsEnabled">Send Metrics?</label></th>
     <td>
-        <forms:checkbox name="honeycombMetricsEnabled" checked="${otelHoneycombMetricsEnabled}" >&nbsp;</forms:checkbox>
+        <forms:checkbox name="honeycombMetricsEnabled" checked="${otelHoneycombMetricsEnabled}" onclick="BS.ProjectConfigurationSettingsHoneycomb.honeycombMetricsEnabledChanged(this)">&nbsp;</forms:checkbox>
     </td>
 </tr>
+
+<script>
+    BS.ProjectConfigurationSettingsHoneycomb.honeycombModeChanged($j('#honeycombMode'));
+    BS.ProjectConfigurationSettingsHoneycomb.honeycombMetricsEnabledChanged($j('#honeycombMetricsEnabled'));
+</script>
