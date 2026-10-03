@@ -163,8 +163,8 @@ public class TeamCityBuildListener extends BuildServerAdapter {
         try {
             try (var ignored1 = CloseableThreadContext.put("teamcity.build.id", String.valueOf(build.getBuildId()))) {
                 LOG.debug(String.format("Build finished method triggered for %s", getBuildId(build)));
-                super.buildFinished(build);
                 buildFinishedOrInterrupted(build);
+                super.buildFinished(build);
             }
         } catch (Exception e) {
             LOG.error("Exception in buildFinished caused by: " + e.getMessage(), e);
@@ -176,8 +176,8 @@ public class TeamCityBuildListener extends BuildServerAdapter {
         try {
             try (var ignored1 = CloseableThreadContext.put("teamcity.build.id", String.valueOf(build.getBuildId()))) {
                 LOG.debug(String.format("Build interrupted method triggered for %s", getBuildId(build)));
-                super.buildInterrupted(build);
                 buildFinishedOrInterrupted(build);
+                super.buildInterrupted(build);
             }
         } catch (Exception e) {
             LOG.error("Exception in buildInterrupted caused by: " + e.getMessage(), e);
