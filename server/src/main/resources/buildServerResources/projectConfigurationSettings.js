@@ -1,5 +1,16 @@
 'use strict';
 
+const pluginRegistry = new Map();
+
+function registerPlugin(implementation) {
+    if (pluginRegistry.has(implementation.serviceType)) {
+        console.warn(`Plugin "${implementation.serviceType}" is already registered.`);
+        return;
+    }
+    pluginRegistry.set(implementation.serviceType, implementation);
+    console.log(`Registered plugin: ${implementation.serviceType}`);
+}
+
 BS.ProjectConfigurationSettings = OO.extend(BS.PluginPropertiesForm, OO.extend(BS.AbstractPasswordForm, {
     formElement: function () {
         return $('editOpenTelemetrySettingsPage');
@@ -35,26 +46,12 @@ BS.ProjectConfigurationSettings = OO.extend(BS.PluginPropertiesForm, OO.extend(B
     },
 
     serviceChanged: function(dropdown) {
-        if ($j(dropdown).val() === 'honeycomb.io') {
-            $j('#endpoint').val('https://api.honeycomb.io:443');
-            $j('#endpoint').closest('tr').hide();
-            $j('#customHeaders').closest('tr').hide();
-            $j('#honeycombTeam').closest('tr').show();
-            $j('#honeycombDataset').closest('tr').show();
-            $j('#honeycombApiKey').closest('tr').show();
-        } else if ($j(dropdown).val() === 'zipkin.io') {
-            $j('#endpoint').closest('tr').show();
-            $j('#customHeaders').closest('tr').hide();
-            $j('#honeycombTeam').closest('tr').hide();
-            $j('#honeycombDataset').closest('tr').hide();
-            $j('#honeycombApiKey').closest('tr').hide();
-        } else {
-            $j('#endpoint').closest('tr').show();
-            $j('#customHeaders').closest('tr').show();
-            $j('#honeycombTeam').closest('tr').hide();
-            $j('#honeycombDataset').closest('tr').hide();
-            $j('#honeycombApiKey').closest('tr').hide();
-        }
+        pluginRegistry.forEach(plugin => {
+            if ($j(dropdown).val() !== plugin.serviceType) plugin.hide();
+        });
+        pluginRegistry.forEach(plugin => {
+            if ($j(dropdown).val() === plugin.serviceType) plugin.show();
+        });
     },
 
     headerTypeChanged: function(dropdown) {
