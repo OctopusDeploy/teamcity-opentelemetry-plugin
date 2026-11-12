@@ -24,7 +24,7 @@ permissions:
 jobs:
   approve-pr:
     runs-on: ubuntu-latest
-    if: ${{ (github.actor == 'team-builds-bot') && contains(github.event.pull_request.labels.*.name, 'autoapprove') }}
+    if: ${{ (github.actor == 'team-developer-platform-bot') && contains(github.event.pull_request.labels.*.name, 'autoapprove') }}
     steps:
       - name: Approve a renovate PR with the 'autoapprove' label
         run: gh pr review --approve "$PR_URL"
