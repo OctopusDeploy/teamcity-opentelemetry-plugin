@@ -33,6 +33,8 @@ jobs:
           RENOVATE_REPOSITORIES: ${{ github.repository }}
           LOG_LEVEL: ${{ github.ref_name == 'main' && 'INFO' || 'DEBUG' }}
           RENOVATE_BASE_BRANCHES: main
+          # Renovate can't discover the bot account's email and otherwise commits as an account Mend owns.
+          RENOVATE_GIT_AUTHOR: "team-developer-platform-bot <124138800+team-developer-platform-bot@users.noreply.github.com>"
           # A run from any other branch, including a pull request, reads that branch's config but still
           # targets the real repository; it must not create, update or close branches and PRs.
           RENOVATE_DRY_RUN: ${{ github.ref_name != 'main' && 'full' || '' }}
